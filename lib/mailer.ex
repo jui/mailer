@@ -1,4 +1,5 @@
 defmodule Mailer do
+  alias Mailer.Email.HTML
   alias Mailer.Email.Plain
   alias Mailer.Email.Multipart
 
@@ -41,6 +42,19 @@ defmodule Mailer do
   #   opts = [strategy: :one_for_one, name: Mailer.Supervisor]
   #   Supervisor.start_link(children, opts)
   # end
+
+  @doc """
+  Send a composed, email to the recipient
+  """
+  def send(%{type: :html} = email) do
+    composed_email = HTML.compose(email)
+
+    server = Mailer.Client.Cfg.create
+    server = Mailer.Client.Cfg.to_options(server)
+
+    Mailer.Smtp.Client.send(email.from, email.to, composed_email, server)
+  end
+
 
   @doc """
   Send a composed, email to the recipient
